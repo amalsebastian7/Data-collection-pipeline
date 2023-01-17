@@ -29,17 +29,15 @@ class CoinmarketcapScraper:
     def fetch_data(self):
         self.driver.get(self.url)
 
-        try:
+        
             # Close the first pop-up
-            close_button = self.driver.find_element_by_xpath("//*[@id='__next']/div[1]/div[1]/div[2]/div/div[2]/svg/path")
-            close_button.click()
-            time.sleep(4)
-            # Close the second pop-up
-            # Close the third pop-up
-            close_button = self.driver.find_element_by_xpath("//*[@id='__next']/div[2]/div[2]/span[2]")
-            close_button.click()
-        except:
-            pass
+        
+        time.sleep(10)
+        close_button = self.driver.find_element_by_xpath('//*/span[contains(text(),"Maybe later")]')
+        print(close_button.text)
+        close_button.click()
+        time.sleep(4)
+         
         # Wait for the page to load
         self.wait.until(EC.presence_of_element_located((By.XPATH, "//table[@id='currencies']")))
         # Find the top 10 crypto currencies
