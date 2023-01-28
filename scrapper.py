@@ -25,247 +25,79 @@ class CoinmarketcapScraper:
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])                                             
         self.driver.maximize_window()
-        
+
     def fetch_data(self):
-        self.driver.get(self.url)
-
-        
-            # Close the first pop-up
-        
-        time.sleep(10)
-        close_button = self.driver.find_element_by_xpath('//*/span[contains(text(),"Maybe later")]')
-        print(close_button.text)
-        close_button.click()
+        self.driver.get(self.url)        
+        try:
+            close_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//*/span[contains(text(),'Maybe later')]")))
+            close_button.click()
+        except TimeoutError:
+            print("TimeoutError: Could not find close button")
         time.sleep(4)
-         
-        # Wait for the page to load
-        self.wait.until(EC.presence_of_element_located((By.XPATH, "//table[@id='currencies']")))
-        # Find the top 10 crypto currencies
-        currencies = self.driver.find_elements_by_xpath("//table[@id='currencies']//tbody/tr")
+        if self.driver.find_elements_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']"):
+                cookie_button = self.driver.find_element_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']")
+                cookie_button.click()
+
+        try:
+            table = self.wait.until(EC.presence_of_element_located((By.XPATH, "//table/tbody")))
+        except TimeoutError:
+            print("TimeoutError: Could not find table")
+        tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")
+        links = []
+        names = []
+        for i in range(3):
+            a_tag = tr_tags[i].find_element_by_xpath(".//a")
+            name = a_tag.text
+            link = a_tag.get_attribute("href")
+            links.append(link)
+            names.append(name)
+            names = [name.split('\n')[0] for name in names]
+
+        return links, names
+
+    def process_data(self, links, names):
         data = []
-        for currency in currencies[:10]:
-            # Get the name and link of the currency
-            name = currency.find_element_by_xpath(".//a[@class='currency-name-container link-secondary']").text
-            link = currency.find_element_by_xpath(".//a[@class='currency-name-container link-secondary']").get_attribute("href")
-
+        for i in range(len(links)):
             # Go to the historical data page of the currency
-            self.driver.get(link + "historical-data/")
-            self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@class='table-responsive']")))
+            print("Accessing historical data for currency: ", names[i])
+            time.sleep(5)
+            self.driver.get(links[i] + "historical-data/")
 
-            # Find the historical data table
-            table = self.driver.find_element_by_xpath("//div[@class='table-responsive']//table")
+            try:
+                self.wait.until(EC.presence_of_element_located((By.XPATH, "//table[contains(@class, cm)]")))
+            except TimeoutError:
+                print("TimeoutError: Could not find historical data table")
 
-            # Get the rows of the table
-            rows = table.find_elements_by_xpath(".//tbody/tr")
-
-            for row in rows:
-                # Get the date and closing price
+            historical_table = self.driver.find_element_by_xpath("//table[contains(@class, cm)]")
+            print(historical_table)
+            historical_data = []
+            c = historical_table.find_elements_by_xpath(".//tbody/tr")
+            print(c)
+            
+            for row in historical_table.find_elements_by_xpath(".//tbody/tr"):
                 date = row.find_element_by_xpath(".//td[1]").text
-                closing_price = row.find_element_by_xpath(".//td[4]").text
+                price = row.find_element_by_xpath(".//td[2]").text
+                market_cap = row.find_element_by_xpath(".//td[3]").text
+                historical_data.append({"date": date, "price": price, "market_cap": market_cap})
 
-                # Append the data to the list
-                data.append([name, date, closing_price])
+            data.append({"name": names[i], "historical_data": historical_data}) 
 
         # Create a DataFrame from the list
-        df = pd.DataFrame(data, columns=["Name", "Date", "Closing Price"])
+        """ df = pd.DataFrame(data, columns=["Name", "historical_data"])
 
-        return df
-
+        return df  """
         
     def close_browser(self):
         self.driver.close()
 
 # Usage
+
 scraper = CoinmarketcapScraper()
-data = scraper.fetch_data()
-print(data)
+links, names = scraper.fetch_data()
+process = scraper.process_data(links,names)
+close = scraper.close_browser()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""  def get_page(self):
-
-                self.path = self.driver.get("https://coinmarketcap.com/")
-
-                WebDriverWait(self.driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH, '//div[@class="sc-f7a61dda-2 efhsPu"]')))
-                self.table = self.driver.find_element(By.XPATH, '//table[@class="sc-f7a61dda-3 kCSmOD cmc-table  "]')
-                names = self.table.find_elements(By.XPATH, "./tbody/tr/td[2]/a")
-                print (names)
-                # Loop through the list of names """
-"""   for name in names:
-                # Click on the name to navigate to the historical data page
-                        name.click()
-                        
-                        # Wait for the page to load
-                        WebDriverWait(self.driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH, '//div[@class="cmc-chart"]')))
-                        
-                        # Find the table containing the historical data
-                        data_table = self.driver.find_element(By.XPATH, '//table[@class="cmc-table__table"]')
-                        
-                        # Find all the rows in the table
-                        data_rows = data_table.find_elements(By.XPATH, "./tbody/tr")
-                
-                # Loop through each row and extract the data
-                for row in data_rows:
-                # Find the cells in the row
-                        cells = row.find_elements(By.XPATH, "./td")
-                        
-                        # The first cell contains the date
-                        date = cells[0].text
-                        
-                        # The second cell contains the closing price
-                        closing_price = cells[4].text
-                        
-                        # Print the data for the cryptocurrency
-                        print(f"{name}: {date}, Closing price={closing_price}")
-                        
-                        # Go back to the main page
-                        self.driver.back()
-
-
-                        return print("Done get_page")
-
-                        # Create an empty data frame
-                df = pd.DataFrame(columns=["Name", "Date", "Closing Price"])
-
-                # Loop through the list of names
-                for name in names:
-                # Click on the name to navigate to the historical data page
-                        name.click()
-                
-                # Wait for the page to load
-                        WebDriverWait(self.driver, 10).until(
-                                EC.presence_of_element_located((By.XPATH, '//div[@class="cmc-chart"]')))
-                
-                # Find the table containing the historical data
-                        data_table = self.driver.find_element(By.XPATH, '//table[@class="cmc-table__table"]')
-                
-                # Find all the rows in the table
-                        data_rows = data_table.find_elements(By.XPATH, "./tbody/tr")
-                
-                # Loop through each row and extract the data
-                for row in data_rows:
-                # Find the cells in the row
-                        cells = row.find_elements(By.XPATH, "./td")
-                
-                # The
- """
-""" a = scraper()
-a.get_page() """
-
-
-                # Find all the rows in the table
-                # 
-""" rows = self.table.find_elements(By.XPATH, "./tbody/tr")
-
-# Loop through each row
-for row in rows:
-# Find the cells in the row
-cells = row.find_elements(By.XPATH, "./td")
-
-# The first cell contains the name of the cryptocurrency
-name = cells[2].text
-
-# The second cell contains the price of the cryptocurrency
-price = cells[3].text
-
-# The third cell contains the market cap of the cryptocurrency
-market_cap = cells[4].text
-
-# The fourth cell contains the volume of the cryptocurrency
-volume = cells[5].text
-
-# Print the data for the cryptocurrency
-print(f"{name}: Price={price}, Market cap={market_cap}, Volume={volume}") """
 
 
