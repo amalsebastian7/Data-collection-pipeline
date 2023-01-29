@@ -17,7 +17,6 @@ import pandas as pd
 class CoinmarketcapScraper:
 
     def __init__(self):
-
 #Initialising the scraper with default url ,driver, all required parameters
         self.url = "https://coinmarketcap.com"
         self.driver = webdriver.Chrome("///home/amalsebastian/Downloads/chromedriver_linux64/chromedriver") 
@@ -29,7 +28,6 @@ class CoinmarketcapScraper:
         self.driver.maximize_window()
 
     def fetch_data(self):
-
 #closing all the pop ups and cookies 
         self.driver.get(self.url)        
         try:
@@ -41,7 +39,6 @@ class CoinmarketcapScraper:
         if self.driver.find_elements_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']"):
                 cookie_button = self.driver.find_element_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']")
                 cookie_button.click()
-
 #Waiting for the Main table to appear
         try:
             table = self.wait.until(EC.presence_of_element_located((By.XPATH, "//table/tbody")))
@@ -50,7 +47,6 @@ class CoinmarketcapScraper:
         tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")
         links = []
         names = []
-
 #selecting and creating a list of links and names of cryptocurrencies to access
         for i in range(3):
             a_tag = tr_tags[i].find_element_by_xpath(".//a")
@@ -65,36 +61,31 @@ class CoinmarketcapScraper:
     def process_data(self, links, names):
         data = []
         for i in range(len(links)):
-
 # Go to the historical data page of the currency
             print("Accessing historical data for currency: ", names[i])
             time.sleep(5)
             self.driver.get(links[i] + "historical-data/")
-
 #creating a try and except to double check the presence of the single crypto table
             try:
                 self.wait.until(EC.presence_of_element_located((By.XPATH, "//table[contains(@class, cm)]")))
             except TimeoutError:
                 print("TimeoutError: Could not find historical data table")
-            historical_table = self.driver.find_elements("xpath", "//table")
-            historical_data = []
-
+            historical_table = self.driver.find_element("xpath", "//table")
+            row_list = historical_table.find_elements("xpath",".//tr")
+#creating a for loop to get the specific data from the table
+            data = []
+            for row in row_list:
+                cols = row.find_elements("xpath", ".//td")
+                if cols:
+                    date = cols[0].text
+                    close_price = cols[4].text
+                    data.append([date, close_price])
 #creating data frame for the date and closing price
-            df = pd.DataFrame(columns=["Date", "Closing Price"])
+            df = pd.DataFrame(data, columns=["Date", "Closing Price"])
             df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
             df["Closing Price"] = pd.to_numeric(df["Closing Price"])
-            
-#creating a for loop to get the specific data from the table
-            for row in historical_table[:31]:
-                print((row.text))
-                date = row.find_elements("xpath", ".//tr[2]//td[1]")
-                closing_price = row.find_element("xpath", ".//tr[2]//td[5]").text
-                historical_data.append(date)
-                df = df.append({"Date": date, "Closing Price": closing_price}, ignore_index=True)
-#print(historical_data) 
-            
-            return df  
-        
+            print(df)
+            historical_data = []       
     def close_browser(self):
         self.driver.close()
 
