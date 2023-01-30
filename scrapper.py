@@ -48,7 +48,7 @@ class CoinmarketcapScraper:
         links = []
         names = []
 #selecting and creating a list of links and names of cryptocurrencies to access
-        for i in range(3):
+        for i in range(10):
             a_tag = tr_tags[i].find_element_by_xpath(".//a")
             name = a_tag.text
             link = a_tag.get_attribute("href")
@@ -60,16 +60,17 @@ class CoinmarketcapScraper:
 
     def process_data(self, links, names):
         data = []
+        df_final = pd.DataFrame()
         for i in range(len(links)):
 # Go to the historical data page of the currency
-            print("Accessing historical data for currency: ", names[i])
-            time.sleep(5)
+            #print("Accessing : ", names[i])
+            time.sleep(2)
             self.driver.get(links[i] + "historical-data/")
-            #Add scrolling to the driver
+#Add scrolling to the driver
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
             self.driver.execute_script("window.scrollTo(0, 0);")
-
-
+            time.sleep(2)
 #creating a try and except to double check the presence of the single crypto table
             try:
                 self.wait.until(EC.presence_of_element_located((By.XPATH, "//table[contains(@class, cm)]")))
@@ -86,14 +87,12 @@ class CoinmarketcapScraper:
                     close_price = cols[4].text
                     data.append([date, close_price])
 #creating data frame for the date and closing price
-                
-            df = pd.DataFrame(data, columns=["Date", "Closing Price"])
-
-            """ df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
-            df["Closing Price"] = pd.to_numeric(df["Closing Price"]) """
+            df = pd.DataFrame(data, columns=["Date",names[i]])
+#concatenating the closing price and deleting the date 
+            df_final = pd.concat([df_final,df],axis =1)
+            df_final = df_final.T.drop_duplicates().T
             
-            print(df)
-            historical_data = []       
+        print(df_final)
     def close_browser(self):
         self.driver.close()
 
