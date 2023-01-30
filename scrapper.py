@@ -82,8 +82,8 @@ class CoinmarketcapScraper:
                     data.append([date, close_price])
 #creating data frame for the date and closing price
             df = pd.DataFrame(data, columns=["Date", "Closing Price"])
-            df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
-            df["Closing Price"] = pd.to_numeric(df["Closing Price"])
+            """ df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
+            df["Closing Price"] = pd.to_numeric(df["Closing Price"]) """
             print(df)
             historical_data = []       
     def close_browser(self):
