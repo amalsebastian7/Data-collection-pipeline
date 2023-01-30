@@ -65,6 +65,11 @@ class CoinmarketcapScraper:
             print("Accessing historical data for currency: ", names[i])
             time.sleep(5)
             self.driver.get(links[i] + "historical-data/")
+            #Add scrolling to the driver
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            self.driver.execute_script("window.scrollTo(0, 0);")
+
+
 #creating a try and except to double check the presence of the single crypto table
             try:
                 self.wait.until(EC.presence_of_element_located((By.XPATH, "//table[contains(@class, cm)]")))
@@ -81,9 +86,12 @@ class CoinmarketcapScraper:
                     close_price = cols[4].text
                     data.append([date, close_price])
 #creating data frame for the date and closing price
+                
             df = pd.DataFrame(data, columns=["Date", "Closing Price"])
+
             """ df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
             df["Closing Price"] = pd.to_numeric(df["Closing Price"]) """
+            
             print(df)
             historical_data = []       
     def close_browser(self):
