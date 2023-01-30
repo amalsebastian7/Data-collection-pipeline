@@ -91,7 +91,7 @@ class CoinmarketcapScraper:
 #concatenating the closing price and deleting the date 
             df_final = pd.concat([df_final,df],axis =1)
             df_final = df_final.T.drop_duplicates().T
-            
+
         print(df_final)
     def close_browser(self):
         self.driver.close()
