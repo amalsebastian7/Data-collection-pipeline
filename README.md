@@ -9,6 +9,65 @@
 - Used Docker to containerise the application and deployed it to an EC2 instance
 - Set up a CI/CD pipeline using GitHub Actions to push a new Docker image
 - Monitored the container using Prometheus and created dashboards to visualise those metrics using Grafana
+## Milestone 1 :
+- Setting up the environment : Working in Ubendu and VScode , a virtual conda environment is created for this project from VScode terminal where we define the versions of all dependencies :
+```
+conda create -n Datacollection python=3.9 
+```
+- Activating environments is essential to making the software in the environments work well. Activation entails two primary functions: adding entries to PATH for the environment and running any activation scripts that the environment may contain.
+```
+conda activate Data collection
+```
+- Setting Up GitHub : By using GitHub, you make it easier to get excellent documentation. Their help section and guides have articles for nearly any topic related to git that you can think of.When multiple people collaborate on a project, it’s hard to keep track revisions—who changed what, when, and where those files are stored. GitHub takes care of this problem by keeping track of all the changes that have been pushed to the repository. Much like using Microsoft Word or Google Drive, you can have a version history of your code so that previous versions are not lost with every iteration.GitHub can integrate with common platforms such as Amazon and Google Cloud, services such as Code Climate to track your feedback, and can highlight syntax.
+
+## Milestone 2 :
+- Selecting the website to scrape : CoinMarketCap (CMC[www.coinmarketcap.com]) was selected as the data collection and web scraping project website due to its comprehensive and reliable information about the cryptocurrency market. With a track record of providing up-to-date and accurate market data, CMC is a widely recognized and respected source in the cryptocurrency community. The website offers a wealth of information, including real-time market data, historical pricing, and currency information, making it an ideal platform for data collection and analysis.
+
+- In addition to its comprehensive market data, CoinMarketCap (CMC) also presents challenges for web scraping due to its complex structure and dynamic updates. The website uses a mix of dynamic and static content, which requires the implementation of advanced web scraping techniques to effectively extract the data. Additionally, CMC frequently updates its website to improve its functionality and user experience, which can result in changes to the website's structure and require ongoing adjustments to the web scraping script. These challenges provided opportunities to deepen my knowledge and develop my web scraping skills as I had to implement creative solutions to overcome the difficulties posed by the website. The experience of scraping CMC has thus been both educational and fulfilling, allowing me to further expand my technical abilities.
+
+
+
+
+
+
+
+```
+conda create -n Datacollection python=3.9 
+```
+
+
+```
+conda create -n Datacollection python=3.9 
+```
+
+
+```
+conda create -n Datacollection python=3.9 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Selenium 
 Selenium is a tool for programmatically controlling a browser. It's originally intended to be used for creating unit tests, but it can also be used to do anything that needs a browser to be controlled. 
