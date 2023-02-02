@@ -10,7 +10,7 @@
 - Set up a CI/CD pipeline using GitHub Actions to push a new Docker image
 - Monitored the container using Prometheus and created dashboards to visualise those metrics using Grafana
 ## Milestone 1 :
-- Setting up the environment : Working in Ubendu and VScode , a virtual conda environment is created for this project from VScode terminal where we define the versions of all dependencies :
+- **Setting up the environment** : Working in Ubendu and VScode , a virtual conda environment is created for this project from VScode terminal where we define the versions of all dependencies :
 ```
 conda create -n Datacollection python=3.9 
 ```
@@ -25,7 +25,7 @@ conda activate Data collection
 
 - In addition to its comprehensive market data, CoinMarketCap (CMC) also presents challenges for **web scraping due to its complex structure and dynamic updates**. The website uses a mix of dynamic and static content, which requires the implementation of advanced web scraping techniques to effectively extract the data. Additionally, CMC frequently updates its website to improve its functionality and user experience, which can result in changes to the website's structure and require ongoing adjustments to the web scraping script. These challenges provided opportunities to deepen my knowledge and develop my web scraping skills as I had to implement creative solutions to overcome the difficulties posed by the website. The experience of scraping CMC has thus been both educational and fulfilling, allowing me to further expand my technical abilities.
 
-- Importing all requirements and modules :
+- **Importing all requirements and modules** :
 ```
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -115,7 +115,7 @@ The method then returns the lists links and names.
     - Extracts the data from the table by looping through each row in the table and finding the date and close price columns.
     - Creates a data frame df for the date and close price and adds it to the df_final data frame.
     - Drops the duplicate date column from the df_final data frame.
-    - Prints the final data frame.
+    - **Prints the final data frame**.
     - Finally, the method `close_browser` is defined to close the driver instance.
 ```
 #METHOD TO PROCESS THE DATA TO A DATA FRAME
@@ -159,7 +159,7 @@ The method then returns the lists links and names.
         self.driver.close()
     
 ```
-*Still working on the rest*
+**Still working on the rest**
 
 
 
