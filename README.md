@@ -18,53 +18,148 @@ conda create -n Datacollection python=3.9
 ```
 conda activate Data collection
 ```
-- Setting Up GitHub : By using GitHub, you make it easier to get excellent documentation. Their help section and guides have articles for nearly any topic related to git that you can think of.When multiple people collaborate on a project, it’s hard to keep track revisions—who changed what, when, and where those files are stored. GitHub takes care of this problem by keeping track of all the changes that have been pushed to the repository. Much like using Microsoft Word or Google Drive, you can have a version history of your code so that previous versions are not lost with every iteration.GitHub can integrate with common platforms such as Amazon and Google Cloud, services such as Code Climate to track your feedback, and can highlight syntax.
+- **Setting Up GitHub** : By using GitHub, you make it easier to get excellent documentation. Their help section and guides have articles for nearly any topic related to git that you can think of.When multiple people collaborate on a project, it’s hard to keep track revisions—who changed what, when, and where those files are stored. GitHub takes care of this problem by keeping track of all the changes that have been pushed to the repository. Much like using Microsoft Word or Google Drive, you can have a version history of your code so that previous versions are not lost with every iteration.GitHub can integrate with common platforms such as Amazon and Google Cloud, services such as Code Climate to track your feedback, and can highlight syntax.
 
 ## Milestone 2 :
-- Selecting the website to scrape : CoinMarketCap (CMC[www.coinmarketcap.com]) was selected as the data collection and web scraping project website due to its comprehensive and reliable information about the cryptocurrency market. With a track record of providing up-to-date and accurate market data, CMC is a widely recognized and respected source in the cryptocurrency community. The website offers a wealth of information, including real-time market data, historical pricing, and currency information, making it an ideal platform for data collection and analysis.
+- **Selecting the website to scrape** : CoinMarketCap (CMC[www.coinmarketcap.com]) was selected as the data collection and web scraping project website due to its comprehensive and reliable information about the cryptocurrency market. With a track record of providing up-to-date and accurate market data, CMC is a widely recognized and respected source in the cryptocurrency community. The website offers a wealth of information, including real-time market data, historical pricing, and currency information, making it an ideal platform for data collection and analysis.
 
-- In addition to its comprehensive market data, CoinMarketCap (CMC) also presents challenges for web scraping due to its complex structure and dynamic updates. The website uses a mix of dynamic and static content, which requires the implementation of advanced web scraping techniques to effectively extract the data. Additionally, CMC frequently updates its website to improve its functionality and user experience, which can result in changes to the website's structure and require ongoing adjustments to the web scraping script. These challenges provided opportunities to deepen my knowledge and develop my web scraping skills as I had to implement creative solutions to overcome the difficulties posed by the website. The experience of scraping CMC has thus been both educational and fulfilling, allowing me to further expand my technical abilities.
+- In addition to its comprehensive market data, CoinMarketCap (CMC) also presents challenges for **web scraping due to its complex structure and dynamic updates**. The website uses a mix of dynamic and static content, which requires the implementation of advanced web scraping techniques to effectively extract the data. Additionally, CMC frequently updates its website to improve its functionality and user experience, which can result in changes to the website's structure and require ongoing adjustments to the web scraping script. These challenges provided opportunities to deepen my knowledge and develop my web scraping skills as I had to implement creative solutions to overcome the difficulties posed by the website. The experience of scraping CMC has thus been both educational and fulfilling, allowing me to further expand my technical abilities.
 
-
-
-
-
-
-
+- Importing all requirements and modules :
 ```
-conda create -n Datacollection python=3.9 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import requests
+import time
+from time import sleep
+import pandas as pd
+
+
+
+class CoinmarketcapScraper:
+
+    def __init__(self):
+#Initialising the scraper with default url ,driver, all required parameters
+        self.url = "https://coinmarketcap.com"
+        self.driver = webdriver.Chrome("///home/amalsebastian/Downloads/chromedriver_linux64/chromedriver") 
+        self.wait = WebDriverWait(self.driver, 10)
+        chrome_options = Options()
+        chrome_options.add_argument("disable-notifications")
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])                                             
+        self.driver.maximize_window() 
 ```
-
-
+    
+## Milestone 3 : 
+- The code is a method `fetch_data` that is a part of a larger class. The method uses Selenium WebDriver to automate the scraping of data from a website. **Here's a step-by-step breakdown of the code** :
+    - The method starts by navigating to the URL specified in the `self.url` attribute.
+    - The code then tries to locate an element with the text "Maybe later" using the `XPATH` locator and a `WebDriverWait` object with a timeout of 20 seconds (defined in the class constructor). If the element is found, the code clicks on it to close the pop-up. If the element is not found within the 20-second timeout, the code throws a `TimeoutError` and prints an error message.
+   - The code then checks if there is a cookie banner present on the page and closes it by clicking on the close button if it exists.
+   - Finally, the code tries to locate the main table containing the data on the page using the `XPATH locator` and the same WebDriverWait object as before. If the table is not found within the 20-second timeout, a TimeoutError is thrown and an error message is printed.
 ```
-conda create -n Datacollection python=3.9 
+ def fetch_data(self):
+#closing all the pop ups and cookies 
+        self.driver.get(self.url)        
+        try:
+            close_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//*/span[contains(text(),'Maybe later')]")))
+            close_button.click()
+        except TimeoutError:
+            print("TimeoutError: Could not find close button")
+        time.sleep(4)
+        if self.driver.find_elements_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']"):
+                cookie_button = self.driver.find_element_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']")
+                cookie_button.click()
+#Waiting for the Main table to appear
+        try:
+            table = self.wait.until(EC.presence_of_element_located((By.XPATH, "//table/tbody")))
+        except TimeoutError:
+            print("TimeoutError: Could not find table")    
 ```
+- The code `tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")` retrieves all of the table row `(tr)` elements within a table body `(tbody)` from the web page.
 
+Next, two empty lists are created, links and names, to store the links and names of the cryptocurrencies that will be found on the page.
 
+Then, the code enters a for loop to iterate through the first 10 rows of the table. For each iteration, the code finds the anchor `(a)` tag element within the current row, retrieves its text value as the name of the cryptocurrency, and its href attribute as its link. These values are then appended to the corresponding lists, links and names.
+
+Finally, the names are modified to keep only the first part of each name by splitting the name string on the newline character `(\n)` and taking the first element of each split string. This is done with the list comprehension `names = [name.split('\n')[0] for name in names]`.
+The method then returns the lists links and names.
 ```
-conda create -n Datacollection python=3.9 
+ tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")
+        links = []
+        names = []
+#selecting and creating a list of links and names of cryptocurrencies to access
+        for i in range(10):
+            a_tag = tr_tags[i].find_element_by_xpath(".//a")
+            name = a_tag.text
+            link = a_tag.get_attribute("href")
+            links.append(link)
+            names.append(name)
+            names = [name.split('\n')[0] for name in names]
+        return links, names
 ```
+    
+    
+## Milestone 3 :
+- This code implements the `process_data` method of the class. This method takes in two arguments links and names, which are lists of links and names of cryptocurrencies respectively. The method performs the following steps:
 
+    - Initializes an empty list data and an empty data frame `df_final`.
+    - Loops through each link and name in the links and names lists respectively.
+    - Navigates to the historical data page of the currency using the link and sleeps for 2 seconds.
+    - Scrolls down and then up the page to load all the historical data.
+    - Tries to locate the historical data table and waits until the presence of the table is confirmed.
+    - Extracts the data from the table by looping through each row in the table and finding the date and close price columns.
+    - Creates a data frame df for the date and close price and adds it to the df_final data frame.
+    - Drops the duplicate date column from the df_final data frame.
+    - Prints the final data frame.
+    - Finally, the method `close_browser` is defined to close the driver instance.
+```
+#METHOD TO PROCESS THE DATA TO A DATA FRAME
 
+    def process_data(self, links, names):
+        data = []
+        df_final = pd.DataFrame()
+        for i in range(len(links)):
+# Go to the historical data page of the currency
+            #print("Accessing : ", names[i])
+            time.sleep(2)
+            self.driver.get(links[i] + "historical-data/")
+#Add scrolling to the driver
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
+            self.driver.execute_script("window.scrollTo(0, 0);")
+            time.sleep(2)
+#creating a try and except to double check the presence of the single crypto table
+            try:
+                self.wait.until(EC.presence_of_element_located((By.XPATH, "//table[contains(@class, cm)]")))
+            except TimeoutError:
+                print("TimeoutError: Could not find historical data table")
+            historical_table = self.driver.find_element("xpath", "//table")
+            row_list = historical_table.find_elements("xpath",".//tr")
+#creating a for loop to get the specific data from the table
+            data = []
+            for row in row_list:
+                cols = row.find_elements("xpath", ".//td")
+                if cols:
+                    date = cols[0].text
+                    close_price = cols[4].text
+                    data.append([date, close_price])
+#creating data frame for the date and closing price
+            df = pd.DataFrame(data, columns=["Date",names[i]])
+#concatenating the closing price and deleting the date 
+            df_final = pd.concat([df_final,df],axis =1)
+            df_final = df_final.T.drop_duplicates().T
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        print(df_final)
+    def close_browser(self):
+        self.driver.close()
+    
+```
+*Still working on the rest*
 
 
 
