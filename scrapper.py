@@ -9,6 +9,8 @@ import requests
 import time
 from time import sleep
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 #Aim:Define methods to go through the website and collect all Top 20 cryptocurrencies and their historical data
 #Aim:To store this data after cleaning and plotting , locally and remote in different servers
@@ -27,10 +29,20 @@ class CoinmarketcapScraper:
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])                                             
         self.driver.maximize_window()
 
+    def scrape(self):
+        links, names = self.fetch_data()
+        self.process_data(links, names)
+        df_final = self.process_data(links, names)
+        self.plot(df_final)
+
+
+
+
+#METHOD TO GET THE DATA CLEARING ALL POPUPS AND LOCATING TABLE
     def fetch_data(self):
 #closing all the pop ups and cookies 
         self.driver.get(self.url)        
-        try:
+        """ try:
             close_button = self.wait.until(EC.presence_of_element_located((By.XPATH, "//*/span[contains(text(),'Maybe later')]")))
             close_button.click()
         except TimeoutError:
@@ -38,7 +50,7 @@ class CoinmarketcapScraper:
         time.sleep(4)
         if self.driver.find_elements_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']"):
                 cookie_button = self.driver.find_element_by_xpath("//div[@id='cmc-cookie-policy-banner']//div[@class='cmc-cookie-policy-banner__close']")
-                cookie_button.click()
+                cookie_button.click() """
 #Waiting for the Main table to appear
         try:
             table = self.wait.until(EC.presence_of_element_located((By.XPATH, "//table/tbody")))
@@ -48,16 +60,18 @@ class CoinmarketcapScraper:
         links = []
         names = []
 #selecting and creating a list of links and names of cryptocurrencies to access
-        for i in range(10):
+        for i in range(2):
             a_tag = tr_tags[i].find_element_by_xpath(".//a")
             name = a_tag.text
             link = a_tag.get_attribute("href")
             links.append(link)
             names.append(name)
             names = [name.split('\n')[0] for name in names]
-
         return links, names
 
+
+
+#METHOD TO PROCESS THE DATA TO A DATA FRAME
     def process_data(self, links, names):
         data = []
         df_final = pd.DataFrame()
@@ -88,17 +102,34 @@ class CoinmarketcapScraper:
                     data.append([date, close_price])
 #creating data frame for the date and closing price
             df = pd.DataFrame(data, columns=["Date",names[i]])
+
+# Removing the "$" symbol from the "amount" column and converting it to float
+            df = df.replace({"\$": ""}, regex=True)
+            
+            df[df.columns[0]] = pd.to_datetime(df[df.columns[0]])
+            df[df.columns[1:]] = df[df.columns[1:]].replace(',', '', regex=True).astype(float)
 #concatenating the closing price and deleting the date 
             df_final = pd.concat([df_final,df],axis =1)
             df_final = df_final.T.drop_duplicates().T
 
-        print(df_final)
+            return df_final
+
+
+#Methods to plot the data 
+    def plot(self,df_final):
+        print("All done")
+
+
+
+
+
+
+        
     def close_browser(self):
         self.driver.close()
 
 # Usage
 
-scraper = CoinmarketcapScraper()
-links, names = scraper.fetch_data()
-process = scraper.process_data(links,names)
-close = scraper.close_browser()
+if __name__ == "__main__":
+    scraper = CoinmarketcapScraper()
+    scraper.scrape()
