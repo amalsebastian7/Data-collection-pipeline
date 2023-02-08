@@ -32,10 +32,9 @@ class CoinmarketcapScraper:
 
     def scrape(self):
         links, names = self.fetch_data()
-        self.process_data(links, names)
         df_final = self.process_data(links, names)
-        self.save_file(df_final)
-        self.plot(df_final)
+        
+        
 
 
 #METHOD TO GET THE DATA CLEARING ALL POPUPS AND LOCATING TABLE
@@ -112,7 +111,7 @@ class CoinmarketcapScraper:
             df_final = pd.concat([df_final,df],axis =1)
             df_final = df_final.T.drop_duplicates().T
 
-            return df_final
+        return df_final
 
     def save_file(self,df_final):
 # Create the raw_data folder if it doesn't exist
