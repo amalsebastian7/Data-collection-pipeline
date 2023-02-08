@@ -30,7 +30,7 @@ class CoinmarketcapScraper:
 
         self.url = "https://coinmarketcap.com"
         self.driver = webdriver.Chrome("///home/amalsebastian/Downloads/chromedriver_linux64/chromedriver") 
-        self.wait = WebDriverWait(self.driver, 10)
+        self.wait = WebDriverWait(self.driver, 4)
         chrome_options = Options()
         chrome_options.add_argument("disable-notifications")
         chrome_options.add_argument("--start-maximized")
@@ -42,6 +42,7 @@ class CoinmarketcapScraper:
         df_final = self.process_data(links, names)
         self.save_file(df_final)
         self.close_browser()
+        self.plot(df_final)
         
 
     def fetch_data(self):
@@ -142,7 +143,6 @@ class CoinmarketcapScraper:
 
             df_final = pd.concat([df_final,df],axis =1)
             df_final = df_final.T.drop_duplicates().T
-
         return df_final
 
     def save_file(self,df_final):
@@ -176,15 +176,25 @@ class CoinmarketcapScraper:
         data_file = os.path.join(date_folder_path, "data.json")
         df_final.to_json(data_file, orient='records')
 
-
-#Methods to plot the data 
     def plot(self,df_final):
-        # Finding the correlation matrix
-        print("-----------")
-        """ corr_matrix = df_final.corr()
-        print("Correlation Matrix:\n", corr_matrix) """
+        
+        #Standard deviation
+        df_without_date = df_final.iloc[:, 1:]
+        std_dev = df_without_date.std()
+        print("Standard Deviation:\n", std_dev)
+        df_date = df_final.set_index('Date')
 
+        # Plot each cryptocurrency
+        plt.figure(figsize=(12, 6))
+        for col in df_date.columns:
+            plt.plot(df_date[col], label=col)
+        plt.legend()
+        plt.xlabel('Date')
+        plt.ylabel('Price')
+        plt.title('Cryptocurrency Price Time Series')
+        plt.show()
 
+        #
 
         
     def close_browser(self):
