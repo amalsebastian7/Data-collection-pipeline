@@ -5,9 +5,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import requests
 import time
 from time import sleep
+import os
+import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -33,9 +34,8 @@ class CoinmarketcapScraper:
         links, names = self.fetch_data()
         self.process_data(links, names)
         df_final = self.process_data(links, names)
+        self.save_file(df_final)
         self.plot(df_final)
-
-
 
 
 #METHOD TO GET THE DATA CLEARING ALL POPUPS AND LOCATING TABLE
@@ -60,7 +60,7 @@ class CoinmarketcapScraper:
         links = []
         names = []
 #selecting and creating a list of links and names of cryptocurrencies to access
-        for i in range(2):
+        for i in range(3):
             a_tag = tr_tags[i].find_element_by_xpath(".//a")
             name = a_tag.text
             link = a_tag.get_attribute("href")
@@ -114,13 +114,33 @@ class CoinmarketcapScraper:
 
             return df_final
 
+    def save_file(self,df_final):
+# Create the raw_data folder if it doesn't exist
+
+        raw_data_folder = 'raw_data'
+        if not os.path.exists(raw_data_folder):
+            os.makedirs(raw_data_folder)
+
+# Create a folder with the current date as its name
+        now = datetime.datetime.now()
+        date_folder = now.strftime("%Y-%m-%d")
+        date_folder_path = os.path.join(raw_data_folder, date_folder)
+        if not os.path.exists(date_folder_path):
+            os.makedirs(date_folder_path)
+
+# Save the dataframe in a file called data.json in the date folder
+        data_file = os.path.join(date_folder_path, "data.json")
+        df_final.to_json(data_file, orient='records')
+
+
+
 
 #Methods to plot the data 
     def plot(self,df_final):
-        print("All done")
-
-
-
+        # Finding the correlation matrix
+        print("-----------")
+        """ corr_matrix = df_final.corr()
+        print("Correlation Matrix:\n", corr_matrix) """
 
 
 
