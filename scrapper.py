@@ -40,6 +40,8 @@ class CoinmarketcapScraper:
     def scrape(self):
         links, names = self.fetch_data()
         df_final = self.process_data(links, names)
+        self.save_file(df_final)
+        self.close_browser()
         
 
     def fetch_data(self):
