@@ -148,17 +148,15 @@ class CoinmarketcapScraper:
 
     def save_file(self,df_final,links,names):
         """
-        This method saves the processed data into a file in json format.
-        The data is saved in a folder structure as follows:
+        This function saves data and images. 
+        It creates two directories, one for raw_data and another for images.
+        Raw_data directory contains a subdirectory with the current date which contains a .json file with the saved data.
+        Images directory contains screenshots of the web pages that are saved in the format 'graph_<name>.png' where <name> is the corresponding name of each link.
 
-        raw_data/YYYY-MM-DD/data.json
-
-        If the folder `raw_data` does not exist, it will be created.
-        Similarly, a folder with the current date (YYYY-MM-DD) will be created if it does not exist.
-        The data is saved in a file named `data.json` in the date folder.
-
-        Args:
-        df_final (pandas.DataFrame): The processed data to be saved.
+        Parameters:
+        df_final (DataFrame): The DataFrame containing the data to be saved.
+        links (List[str]): A list of URLs representing the web pages to be scraped.
+        names (List[str]): A list of strings representing the names corresponding to each URL.
 
         Returns:
         None
@@ -170,7 +168,6 @@ class CoinmarketcapScraper:
             self.driver.get(link)
             self.driver.execute_script("window.scrollBy(0,400);")
             screenshot = self.driver.save_screenshot(f"images/graph_{names[i]}.png")
-
 
         raw_data_folder = 'raw_data'
         if not os.path.exists(raw_data_folder):
