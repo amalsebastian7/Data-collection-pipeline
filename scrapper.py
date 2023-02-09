@@ -41,7 +41,7 @@ class CoinmarketcapScraper:
     def scrape(self):
         links, names = self.fetch_data()
         df_final = self.process_data(links, names)
-        self.save_file(df_final)
+        self.save_file(df_final,links,names)
         self.close_browser()
         self.plot(df_final)
         
@@ -86,7 +86,7 @@ class CoinmarketcapScraper:
         links = []
         names = []
 
-        for i in range(3):
+        for i in range(10):
             a_tag = tr_tags[i].find_element_by_xpath(".//a")
             name = a_tag.text
             link = a_tag.get_attribute("href")
@@ -146,7 +146,7 @@ class CoinmarketcapScraper:
             df_final = df_final.T.drop_duplicates().T
         return df_final
 
-    def save_file(self,df_final):
+    def save_file(self,df_final,links,names):
         """
         This method saves the processed data into a file in json format.
         The data is saved in a folder structure as follows:
@@ -163,6 +163,14 @@ class CoinmarketcapScraper:
         Returns:
         None
         """
+        if not os.path.exists("images"):
+            os.makedirs("images")
+
+        for i, link in enumerate(links):
+            self.driver.get(link)
+            self.driver.execute_script("window.scrollBy(0,400);")
+            screenshot = self.driver.save_screenshot(f"images/graph_{names[i]}.png")
+
 
         raw_data_folder = 'raw_data'
         if not os.path.exists(raw_data_folder):
