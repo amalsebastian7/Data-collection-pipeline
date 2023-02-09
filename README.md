@@ -9,6 +9,11 @@
 - Used Docker to containerise the application and deployed it to an EC2 instance
 - Set up a CI/CD pipeline using GitHub Actions to push a new Docker image
 - Monitored the container using Prometheus and created dashboards to visualise those metrics using Grafana
+## Output
+![Bitcoin](https://github.com/amalsebastian7/Data-collection-pipeline/blob/1986dc16d4938a78c61c8499a8d049bf65d4115a/output/Screenshot-53.png)
+
+
+
 ## Milestone 1 :
 - **Setting up the environment** : Working in Ubendu and VScode , a virtual conda environment is created for this project from VScode terminal where we define the versions of all dependencies :
 ```
