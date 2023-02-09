@@ -38,7 +38,7 @@ class CoinmarketcapScraper:
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])                                             
         self.driver.maximize_window()
 
-    def scrape(self):
+    def _scrape(self):
         links, names = self.fetch_data()
         df_final = self._process_data(links, names)
         self.__save_file(df_final,links,names)
