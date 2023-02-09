@@ -5,8 +5,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 from time import sleep
+import time
 import os
 import datetime
 import pandas as pd
@@ -40,8 +40,8 @@ class CoinmarketcapScraper:
 
     def scrape(self):
         links, names = self.fetch_data()
-        df_final = self.process_data(links, names)
-        self.save_file(df_final,links,names)
+        df_final = self._process_data(links, names)
+        self.__save_file(df_final,links,names)
         self.close_browser()
         self.plot(df_final)
         
@@ -95,7 +95,7 @@ class CoinmarketcapScraper:
             names = [name.split('\n')[0] for name in names]
         return links, names
 
-    def process_data(self, links, names):
+    def _process_data(self, links: list, names:list )-> pd.DataFrame:
         """
         Processes the data from given links and returns a concatenated dataframe.
 
@@ -146,7 +146,7 @@ class CoinmarketcapScraper:
             df_final = df_final.T.drop_duplicates().T
         return df_final
 
-    def save_file(self,df_final,links,names):
+    def __save_file(self, df_final :pd.DataFrame, links :list, names: list)-> None:
         """
         This function saves data and images. 
         It creates two directories, one for raw_data and another for images.
@@ -182,15 +182,26 @@ class CoinmarketcapScraper:
         data_file = os.path.join(date_folder_path, "data.json")
         df_final.to_json(data_file, orient='records')
 
-    def plot(self,df_final):
-        
-        #Standard deviation
+    def plot(self,df_final: pd.DataFrame )-> None:
+        """
+        This method plots the cryptocurrency price time series.
+
+        Parameters:
+        df_final (pd.DataFrame): The dataframe containing the final cryptocurrency prices with a 'Date' column.
+
+        Returns:
+        None: This method displays a plot of the cryptocurrency prices over time.
+
+        The method first calculates the standard deviation of the cryptocurrency prices and prints it.
+        It then sets the 'Date' column as the index of the dataframe. The method plots each cryptocurrency price over time,
+        with the 'Date' column on the x-axis and the price on the y-axis. The plot is labeled with the names of each cryptocurrency
+        and the title 'Cryptocurrency Price Time Series'.
+        """
         df_without_date = df_final.iloc[:, 1:]
         std_dev = df_without_date.std()
         print("Standard Deviation:\n", std_dev)
         df_date = df_final.set_index('Date')
 
-        # Plot each cryptocurrency
         plt.figure(figsize=(12, 6))
         for col in df_date.columns:
             plt.plot(df_date[col], label=col)
