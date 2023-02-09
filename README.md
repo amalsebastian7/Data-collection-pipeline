@@ -10,9 +10,11 @@
 - Set up a CI/CD pipeline using GitHub Actions to push a new Docker image
 - Monitored the container using Prometheus and created dashboards to visualise those metrics using Grafana
 ## Output
+- **Locally saved all 10 cryptocurrency trading graph**
 ![Bitcoin](https://github.com/amalsebastian7/Data-collection-pipeline/blob/1986dc16d4938a78c61c8499a8d049bf65d4115a/output/Screenshot-53.png)
-
-
+    
+- **Saved closing price as .json file**
+![Bitcoin](https://github.com/amalsebastian7/Data-collection-pipeline/blob/00c4affc0de614e50ebbba56fe9988fa10832ca9/output/Screenshot-55.png) 
 
 ## Milestone 1 :
 - **Setting up the environment** : Working in Ubendu and VScode , a virtual conda environment is created for this project from VScode terminal where we define the versions of all dependencies :
