@@ -10,6 +10,7 @@ from time import sleep
 import os
 import datetime
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -193,9 +194,6 @@ class CoinmarketcapScraper:
         plt.ylabel('Price')
         plt.title('Cryptocurrency Price Time Series')
         plt.show()
-
-        #
-
         
     def close_browser(self):
         self.driver.close()
