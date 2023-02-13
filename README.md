@@ -276,6 +276,14 @@ if __name__ == '__main__':
 - `test_process_data`:This test case is used to check the functionality of the _process_data method of the Coinmarketcap Scraper. The _process_data method is used to process the links and names obtained from the fetch_data method and return a pandas dataframe with the details of the top 10 cryptocurrencies.In this test case, we are checking if the output of the _process_data method is a pandas dataframe and if the number of rows in the dataframe is greater than 0.
 
 - Execution:To run the integration tests, we need to execute the testCoinmarketcap.py file using the following command in the terminal: `python testCoinmarketcap.py`The output of the tests will be displayed in the terminal, and if all tests pass, the output will be displayed as `OK`. If any test fails, the output will display the `error message` , and the test case that has failed.
+```
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+----------------------------------------------------------------------
+Ran 2 tests in 142.239s
+
+OK    
+```
 
 - `Tear Down`: The tearDown method is called after every test case is executed. The purpose of this method is to clean up any resources that were used in the test cases. In this code, we are calling the close_browser method of the Coinmarketcap Scraper to close the web browser that was opened during the `fetch_data` method.
 - **UnitTest Conclusion :Integration testing is an important part of software development as it helps to catch any bugs or issues in the code before it is used in a larger system. The code discussed in this repository provides a basic template for integration testing of a web scraper using the unittest module of Python.**
