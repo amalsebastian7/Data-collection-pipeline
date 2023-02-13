@@ -1,15 +1,77 @@
 # Data-collection-pipeline
-## Index
 - [Introduction](#introduction)
-- [Milestone 1](#2)
-- [Dummy](#dummy)
+- [Summary](#summary)
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
 
 
 
 
 
 
-### Introduction{#introduction}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Introduction
 - An implementation of an industry grade data collection pipeline that runs scalably in the cloud. It uses Python code to automatically control your browser, extract information from a website, and store it on the cloud in a data warehouses and data lake. The system conforms to industry best practices such as being containerised in Docker and running automated tests.
 - In this data collection pipeline project i create a scraper using Selenium. This scraper has to be as flexible as possible, so all its functionalities are contained within a class that can be reused. Additionally, the scraper is put into production on an EC2 instance that runs a Docker container monitored using Prometheus and Grafana. To allow the user to make changes without accessing the EC2 container every time a new feature is added, the scraper undergoes a CI/CD workflow to test that everything works fine and deploys a new version of the application Dockerhub.
 
@@ -28,7 +90,7 @@
 - **Saved closing price as .json file**
 ![.json_file](https://github.com/amalsebastian7/Data-collection-pipeline/blob/00c4affc0de614e50ebbba56fe9988fa10832ca9/output/Screenshot-55.png) 
 
-## Milestone 1 {2} :
+## Milestone 1 :
 - **Setting up the environment** : Working in Ubendu and VScode , a virtual conda environment is created for this project from VScode terminal where we define the versions of all dependencies :
 ```
 conda create -n Datacollection python=3.9 
@@ -300,7 +362,6 @@ OK
 - `Tear Down`: The tearDown method is called after every test case is executed. The purpose of this method is to clean up any resources that were used in the test cases. In this code, we are calling the close_browser method of the Coinmarketcap Scraper to close the web browser that was opened during the `fetch_data` method.
 - **UnitTest Conclusion :Integration testing is an important part of software development as it helps to catch any bugs or issues in the code before it is used in a larger system. The code discussed in this repository provides a basic template for integration testing of a web scraper using the unittest module of Python.**
 
-### Dummy{#dummy}
 
 
 **Still working on the rest**
