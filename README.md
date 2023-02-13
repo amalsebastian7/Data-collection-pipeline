@@ -1,4 +1,4 @@
-# Data-collection-pipeline
+# Data collection pipeline
 ## Index
 - [Introduction](#introduction)
 - [Setting up environment(Virtual environment using: Conda,Source control :Github)](#milestone-1-)
@@ -45,23 +45,20 @@ conda activate Data collection
 
 - **Importing all requirements and modules** :
 ```
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import requests
-import time
-from time import sleep
-import pandas as pd
-
-
-
 class CoinmarketcapScraper:
 
     def __init__(self):
+        
+        """
+        Initialize the class with the required attributes.
+
+        Attributes:
+            url (str): The URL of the CoinMarketCap website.
+            driver (webdriver.Chrome): The Chrome web driver to be used for browsing.
+            wait (WebDriverWait): The WebDriverWait object to wait for elements to load.
+            chrome_options (Options): The Chrome options for the web driver.
+        """
+
         self.url = "https://coinmarketcap.com"
         self.driver = webdriver.Chrome("///home/amalsebastian/Downloads/chromedriver_linux64/chromedriver") 
         self.wait = WebDriverWait(self.driver, 4)
@@ -71,12 +68,13 @@ class CoinmarketcapScraper:
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])                                             
         self.driver.maximize_window()
 
-    def scrape(self):
+    def _scrape(self):
         links, names = self.fetch_data()
-        df_final = self.process_data(links, names)
-        self.save_file(df_final,links,names)
+        df_final = self._process_data(links, names)
+        self.__save_file(df_final,links,names)
         self.close_browser()
         self.plot(df_final)
+        
         
 ```
 -This function is the main function for scraping data from a web page. It does the following steps:
@@ -94,8 +92,24 @@ class CoinmarketcapScraper:
    - The code then checks if there is a cookie banner present on the page and closes it by clicking on the close button if it exists.
    - Finally, the code tries to locate the main table containing the data on the page using the `XPATH locator` and the same WebDriverWait object as before. If the table is not found within the 20-second timeout, a TimeoutError is thrown and an error message is printed.
 ```
- def fetch_data(self):
-self.driver.get(self.url)        
+def fetch_data(self):
+        """ 
+        Gets the main table of contents.
+        This method is used to clear all pop ups and cookies
+        and get the main table of contents.This is used to get links and names of all required number of cryptocurrencies
+
+        Parameters:
+        None
+
+        Returns:
+        Links:List of links to the historic trading data of each currency
+        names:List of Names of all respective currencies
+
+        Raise :
+        TimeoutError:If the main table couldnt be fetched
+        Exception e:Prints Popup cleared if popup doesnt exist / is closed
+        """
+        self.driver.get(self.url)        
         try:
             close_button = self.wait.until(EC.presence_of_element_located\
                 ((By.XPATH, "//*/span[contains(text(),'Maybe later')]")))
@@ -123,7 +137,7 @@ Then, the code enters a for loop to iterate through the first 10 rows of the tab
 Finally, the names are modified to keep only the first part of each name by splitting the name string on the newline character `(\n)` and taking the first element of each split string. This is done with the list comprehension `names = [name.split('\n')[0] for name in names]`.
 The method then returns the lists links and names.
 ```
-tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")
+        tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")
         links = []
         names = []
 
@@ -151,7 +165,7 @@ tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")
     - Drops the duplicate date column from the df_final data frame.
     - **Prints the final data frame**.
 ```
- def process_data(self, links, names):
+    def _process_data(self, links: list, names:list )-> pd.DataFrame:
         """
         Processes the data from given links and returns a concatenated dataframe.
 
@@ -208,10 +222,24 @@ tr_tags = self.driver.find_elements_by_xpath("//table/tbody/tr")
 - **This code performs two main functions: taking screenshots of graphs and saving the processed data**. The first block of code checks if the `images` folder exists, and if not, it creates one. The for loop then iterates through each link in the `links` list and navigates to that page using the web driver. The page is then scrolled down by 400 pixels using the `execute_script` method. Finally, a screenshot is taken of the page and saved in the "images" folder with the file name `graph_{names[i]}.png`.
 
 -The second block of code performs a similar check to see if the `raw_data` folder exists and creates it if it does not. The current date is then obtained using the `datetime` library and used to create a folder with the same name in the "raw_data" folder. The processed data, stored in the `df_final` data frame, is then saved in this date folder as a JSON file with the name `data.json`. The data is saved in the `records` orientation.
+- Finding `standard deviation` and initial plot 
     
 ```
-def save_file(self,df_final,links,names):
-        
+    def __save_file(self, df_final :pd.DataFrame, links :list, names: list)-> None:
+        """
+        This function saves data and images. 
+        It creates two directories, one for raw_data and another for images.
+        Raw_data directory contains a subdirectory with the current date which contains a .json file with the saved data.
+        Images directory contains screenshots of the web pages that are saved in the format 'graph_<name>.png' where <name> is the corresponding name of each link.
+
+        Parameters:
+        df_final (DataFrame): The DataFrame containing the data to be saved.
+        links (List[str]): A list of URLs representing the web pages to be scraped.
+        names (List[str]): A list of strings representing the names corresponding to each URL.
+
+        Returns:
+        None
+        """
         if not os.path.exists("images"):
             os.makedirs("images")
 
@@ -233,6 +261,36 @@ def save_file(self,df_final,links,names):
         data_file = os.path.join(date_folder_path, "data.json")
         df_final.to_json(data_file, orient='records')
     
+```
+```
+    def plot(self,df_final: pd.DataFrame )-> None:
+        """
+        This method plots the cryptocurrency price time series.
+
+        Parameters:
+        df_final (pd.DataFrame): The dataframe containing the final cryptocurrency prices with a 'Date' column.
+
+        Returns:
+        None: This method displays a plot of the cryptocurrency prices over time.
+
+        The method first calculates the standard deviation of the cryptocurrency prices and prints it.
+        It then sets the 'Date' column as the index of the dataframe. The method plots each cryptocurrency price over time,
+        with the 'Date' column on the x-axis and the price on the y-axis. The plot is labeled with the names of each cryptocurrency
+        and the title 'Cryptocurrency Price Time Series'.
+        """
+        df_without_date = df_final.iloc[:, 1:]
+        std_dev = df_without_date.std()
+        print("Standard Deviation:\n", std_dev)
+        df_date = df_final.set_index('Date')
+
+        plt.figure(figsize=(12, 6))
+        for col in df_date.columns:
+            plt.plot(df_date[col], label=col)
+        plt.legend()
+        plt.xlabel('Date')
+        plt.ylabel('Price')
+        plt.title('Cryptocurrency Price Time Series')
+        plt.show()    
 ```
 ## Milestone 6 :
 ### Integration Testing
