@@ -167,7 +167,9 @@ class CoinmarketcapScraper:
         for i, link in enumerate(links):
             self.driver.get(link)
             self.driver.execute_script("window.scrollBy(0,400);")
-            screenshot = self.driver.save_screenshot(f"images/graph_{names[i]}.png")
+            current_datetime = datetime.datetime.now()
+            today = current_datetime.strftime("%Y-%m-%d_%H-%M")
+            screenshot = self.driver.save_screenshot(f"images/{names[i]}_{today}.png")
 
         raw_data_folder = 'raw_data'
         if not os.path.exists(raw_data_folder):
@@ -218,4 +220,4 @@ class CoinmarketcapScraper:
 
 if __name__ == "__main__":
     scraper = CoinmarketcapScraper()
-    scraper.scrape()
+    scraper._scrape()
