@@ -299,7 +299,7 @@ OK
 - `Tear Down`: The tearDown method is called after every test case is executed. The purpose of this method is to clean up any resources that were used in the test cases. In this code, we are calling the close_browser method of the Coinmarketcap Scraper to close the web browser that was opened during the `fetch_data` method.
 - **UnitTest Conclusion :Integration testing is an important part of software development as it helps to catch any bugs or issues in the code before it is used in a larger system. The code discussed in this repository provides a basic template for integration testing of a web scraper using the unittest module of Python.**
 
-
+### Dummy{#dummy}
 
 
 **Still working on the rest**
