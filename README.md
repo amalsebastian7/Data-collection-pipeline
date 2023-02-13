@@ -2,14 +2,14 @@
 - An implementation of an industry grade data collection pipeline that runs scalably in the cloud. It uses Python code to automatically control your browser, extract information from a website, and store it on the cloud in a data warehouses and data lake. The system conforms to industry best practices such as being containerised in Docker and running automated tests.
 - In this data collection pipeline project i create a scraper using Selenium. This scraper has to be as flexible as possible, so all its functionalities are contained within a class that can be reused. Additionally, the scraper is put into production on an EC2 instance that runs a Docker container monitored using Prometheus and Grafana. To allow the user to make changes without accessing the EC2 container every time a new feature is added, the scraper undergoes a CI/CD workflow to test that everything works fine and deploys a new version of the application Dockerhub.
 
-## Summary
+### Summary
 - Developed a module that scraped data from various sources using Selenium (and maybe Requests) 
 - Curated a database with information about <the website you chose> and stored it on an AWS RDS database using SQLAlchemy and PostgreSQL
 - Performed unit testing and integration testing on the application to ensure that the package published to Pypi is working as expected
 - Used Docker to containerise the application and deployed it to an EC2 instance
 - Set up a CI/CD pipeline using GitHub Actions to push a new Docker image
 - Monitored the container using Prometheus and created dashboards to visualise those metrics using Grafana
-## Output
+### Output
 - **Locally saved all 10 cryptocurrency trading graph**
 ![Bitcoin](https://github.com/amalsebastian7/Data-collection-pipeline/blob/1986dc16d4938a78c61c8499a8d049bf65d4115a/output/Screenshot-53.png)
     
@@ -223,6 +223,65 @@ def save_file(self,df_final,links,names):
         df_final.to_json(data_file, orient='records')
     
 ```
+## Milestone 6 :
+### Integration Testing
+- We will be discussing the integration testing code for the Coinmarketcap Scraper. The testing code is written using the `unittest` module of Python. The purpose of this integration testing is to ensure that the scraper is working as expected and to detect any issues or bugs in the scraper before it is used in a larger system.
+
+```
+import unittest as ut
+from scrapper import CoinmarketcapScraper
+import pandas as pd
+
+class testCoinmarketcap(ut.TestCase):
+
+    def setUp(self):
+        self.scraper = CoinmarketcapScraper()
+
+    def test_fetch_data(self):
+        links, names = self.scraper.fetch_data()
+        self.assertEqual(len(links), 10)
+        self.assertEqual(len(names), 10)
+
+    def test_process_data(self):
+        links, names = self.scraper.fetch_data()
+        df_final = self.scraper._process_data(links, names)
+        self.assertIsInstance(df_final, pd.DataFrame)
+        self.assertGreater(df_final.shape[0], 0)
+
+    def tearDown(self):
+        self.scraper.close_browser()
+
+
+
+if __name__ == '__main__':
+    ut.main()
+    
+```
+
+- Required Libraries: The following libraries are required to run the integration tests:
+
+   - unittest
+   - pandas
+   - CoinmarketcapScraper
+
+- File Structure: The integration testing code is stored in a single file `testCoinmarketcap.py`
+- Testing Code:The integration testing code is written in the form of `test cases`. Each test case performs a specific task to check the functionality of the Coinmarketcap Scraper.
+
+- The following are the test cases written in the code:
+
+    - `test_fetch_data`
+    - `test_process_data`
+
+- `test_fetch_data`:This test case is used to check the functionality of the fetch_data method of the Coinmarketcap Scraper. The fetch_data method is used to fetch the links and names of the top 10 cryptocurrencies from the Coinmarketcap website.In this test case, we are checking if the number of links and names returned by the fetch_data method is equal to 10.
+- `test_process_data`:This test case is used to check the functionality of the _process_data method of the Coinmarketcap Scraper. The _process_data method is used to process the links and names obtained from the fetch_data method and return a pandas dataframe with the details of the top 10 cryptocurrencies.In this test case, we are checking if the output of the _process_data method is a pandas dataframe and if the number of rows in the dataframe is greater than 0.
+
+- Execution:To run the integration tests, we need to execute the testCoinmarketcap.py file using the following command in the terminal: `python testCoinmarketcap.py`The output of the tests will be displayed in the terminal, and if all tests pass, the output will be displayed as `OK`. If any test fails, the output will display the `error message` , and the test case that has failed.
+
+- `Tear Down`: The tearDown method is called after every test case is executed. The purpose of this method is to clean up any resources that were used in the test cases. In this code, we are calling the close_browser method of the Coinmarketcap Scraper to close the web browser that was opened during the `fetch_data` method.
+- **UnitTest Conclusion :Integration testing is an important part of software development as it helps to catch any bugs or issues in the code before it is used in a larger system. The code discussed in this repository provides a basic template for integration testing of a web scraper using the unittest module of Python.**
+
+
+
 
 **Still working on the rest**
 
