@@ -22,6 +22,5 @@ class testCoinmarketcap(ut.TestCase):
         self.scraper.close_browser()
 
 
-
 if __name__ == '__main__':
     ut.main()

@@ -30,20 +30,20 @@ class CoinmarketcapScraper:
         """
 
         self.url = "https://coinmarketcap.com"
-        self.driver = webdriver.Chrome("///home/amalsebastian/Downloads/chromedriver_linux64/chromedriver") 
-        self.wait = WebDriverWait(self.driver, 4)
+        self.today = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
         chrome_options = Options()
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("disable-notifications")
-        chrome_options.add_argument("--start-maximized")
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])                                             
-        self.driver.maximize_window()
+        self.driver = webdriver.Chrome("///home/amalsebastian/Downloads/chromedriver_linux64/chromedriver",options=chrome_options) 
+    
 
     def _scrape(self):
         links, names = self.fetch_data()
         df_final = self._process_data(links, names)
         self.__save_file(df_final,links,names)
         self.close_browser()
-        self.plot(df_final)
+        self.plot(df_final,names)
         
 
     def fetch_data(self):
@@ -65,7 +65,7 @@ class CoinmarketcapScraper:
         """
         self.driver.get(self.url)        
         try:
-            close_button = self.wait.until(EC.presence_of_element_located\
+            close_button = WebDriverWait(self.driver, 4).until(EC.presence_of_element_located\
                 ((By.XPATH, "//*/span[contains(text(),'Maybe later')]")))
             close_button.click()
         except Exception as e:
@@ -78,7 +78,7 @@ class CoinmarketcapScraper:
                     //div[@class='cmc-cookie-policy-banner__close']")
                 cookie_button.click()
         try:
-            table = self.wait.until(EC.presence_of_element_located((By.XPATH, "//table/tbody")))
+            table = WebDriverWait(self.driver, 4).until(EC.presence_of_element_located((By.XPATH, "//table/tbody")))
         except TimeoutError:
             print("TimeoutError: Could not find table")
 
@@ -121,7 +121,7 @@ class CoinmarketcapScraper:
             self.driver.execute_script("window.scrollTo(0, 0);")
             time.sleep(2)
             try:
-                self.wait.until(EC.presence_of_element_located\
+                WebDriverWait(self.driver, 4).until(EC.presence_of_element_located\
                     ((By.XPATH, "//table[contains(@class, cm)]")))
             except TimeoutError:
                 print("TimeoutError: Could not find historical data table")
@@ -146,77 +146,105 @@ class CoinmarketcapScraper:
             df_final = df_final.T.drop_duplicates().T
         return df_final
 
+
     def __save_file(self, df_final :pd.DataFrame, links :list, names: list)-> None:
         """
-        This function saves data and images. 
-        It creates two directories, one for raw_data and another for images.
-        Raw_data directory contains a subdirectory with the current date which contains a .json file with the saved data.
-        Images directory contains screenshots of the web pages that are saved in the format 'graph_<name>.png' where <name> is the corresponding name of each link.
-
         Parameters:
-        df_final (DataFrame): The DataFrame containing the data to be saved.
-        links (List[str]): A list of URLs representing the web pages to be scraped.
-        names (List[str]): A list of strings representing the names corresponding to each URL.
+
+        df_final (pd.DataFrame): A pandas dataframe containing the final data.
+        links (list): A list of web links for which data has been collected.
+        names (list): A list of the names of the cryptocurrencies whose data has been collected.
 
         Returns:
-        None
+
+        None.
+
+        Behavior:
+
+        Creates a new directory named "images" to store the screenshots of webpages.
+        Creates a new directory named "raw_data" to store the raw data in a JSON file.
+        Creates a new subdirectory in "raw_data" named after the current date to store data for the current date.
+        Saves the raw data in JSON format to the data_file variable in the "raw_data" directory.
         """
+        
         if not os.path.exists("images"):
             os.makedirs("images")
 
-        for i, link in enumerate(links):
+        """ for i, link in enumerate(links):
             self.driver.get(link)
             self.driver.execute_script("window.scrollBy(0,400);")
-            current_datetime = datetime.datetime.now()
-            today = current_datetime.strftime("%Y-%m-%d_%H-%M")
-            screenshot = self.driver.save_screenshot(f"images/{names[i]}_{today}.png")
+            screenshot = self.driver.save_screenshot(f"images/{names[i]}_{self.today}.png") """ 
+            #To take screenshot(Cannot use here as its run on headless)
 
         raw_data_folder = 'raw_data'
         if not os.path.exists(raw_data_folder):
             os.makedirs(raw_data_folder)
 
-        now = datetime.datetime.now()
-        date_folder = now.strftime("%Y-%m-%d")
-        date_folder_path = os.path.join(raw_data_folder, date_folder)
+        date_folder_path = os.path.join(raw_data_folder, self.today)
         if not os.path.exists(date_folder_path):
             os.makedirs(date_folder_path)
 
         data_file = os.path.join(date_folder_path, "data.json")
         df_final.to_json(data_file, orient='records')
 
-    def plot(self,df_final: pd.DataFrame )-> None:
-        """
-        This method plots the cryptocurrency price time series.
 
-        Parameters:
-        df_final (pd.DataFrame): The dataframe containing the final cryptocurrency prices with a 'Date' column.
+    def plot(self,df_final: pd.DataFrame,names : list )-> None:
+
+        """
+        Generate and save plots for the given cryptocurrency data.
+
+        Args:
+            df_final (pd.DataFrame): A DataFrame containing the cryptocurrency data with dates in the first column.
+            names (list): A list of the column names in `df_final` corresponding to the cryptocurrencies to be plotted.
 
         Returns:
-        None: This method displays a plot of the cryptocurrency prices over time.
+            None: This method only generates and saves plots and does not return any values.
 
-        The method first calculates the standard deviation of the cryptocurrency prices and prints it.
-        It then sets the 'Date' column as the index of the dataframe. The method plots each cryptocurrency price over time,
-        with the 'Date' column on the x-axis and the price on the y-axis. The plot is labeled with the names of each cryptocurrency
-        and the title 'Cryptocurrency Price Time Series'.
+        Plots generated:
+            - Weekly Moving Average: A line chart of the cryptocurrency closing price and its 7-day moving average.
+            - Standard Deviation: A histogram of the standard deviation of cryptocurrency closing prices over time.
+
+            Saves plots in a "Plots" directory within the same directory as the script, with filenames in the format
+            "<cryptocurrency name>_MA_<current date>.png" and "STD_<current date>.png" for the moving average and standard deviation
+            plots, respectively. The current date is determined based on the local system time.
         """
-        df_without_date = df_final.iloc[:, 1:]
-        std_dev = df_without_date.std()
-        print("Standard Deviation:\n", std_dev)
-        df_date = df_final.set_index('Date')
-
-        plt.figure(figsize=(12, 6))
-        for col in df_date.columns:
-            plt.plot(df_date[col], label=col)
-        plt.legend()
-        plt.xlabel('Date')
-        plt.ylabel('Price')
-        plt.title('Cryptocurrency Price Time Series')
-        plt.show()
         
+        df_without_date = df_final.iloc[:, 1:]
+        window_size = 7
+        df_ma = df_without_date.rolling(window=window_size).mean()
+        df_ma.columns = [name + '_MA_' + str(window_size) for name in names]
+        df_combined = pd.concat([df_final, df_ma], axis=1)
+
+        plots_dir = os.path.join(os.path.dirname(__file__), 'Plots')
+        os.makedirs(plots_dir, exist_ok=True)
+
+        for name in names:
+            col_closing = name
+            col_ma = name + '_MA_' + str(window_size)
+            df_combined[[col_closing, col_ma]].plot()
+            plt.title('Weekly Moving Average')
+            plt.xlabel('Date')
+            plt.ylabel('Price')
+            
+            filename = f'{name}_MA_{self.today}.png'
+            filepath = os.path.join(plots_dir, filename)
+            plt.savefig(filepath)
+            plt.close()
+
+        std_dev = df_without_date.std()
+        fig, ax = plt.subplots()
+        ax.hist(std_dev, bins=10)
+        ax.set_title('Standard Deviation')
+        ax.set_xlabel('Standard Deviation')
+        ax.set_ylabel('Frequency')
+        filename = f'STD_{self.today}.png'
+        filepath = os.path.join(plots_dir, filename)
+        plt.savefig(filepath)
+        plt.close()
+
     def close_browser(self):
         self.driver.close()
 
-# Usage
 
 if __name__ == "__main__":
     scraper = CoinmarketcapScraper()
