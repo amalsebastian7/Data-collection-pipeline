@@ -1,7 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,9 +8,8 @@ import time
 import os
 import datetime
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 
 class CoinmarketcapScraper:
@@ -167,13 +164,13 @@ class CoinmarketcapScraper:
         Saves the raw data in JSON format to the data_file variable in the "raw_data" directory.
         """
         
-        if not os.path.exists("images"):
+        """  if not os.path.exists("images"):
             os.makedirs("images")
 
-        """ for i, link in enumerate(links):
-            self.driver.get(link)
-            self.driver.execute_script("window.scrollBy(0,400);")
-            screenshot = self.driver.save_screenshot(f"images/{names[i]}_{self.today}.png") """ 
+            for i, link in enumerate(links):
+                self.driver.get(link)
+                self.driver.execute_script("window.scrollBy(0,400);")
+                screenshot = self.driver.save_screenshot(f"images/{names[i]}_{self.today}.png") """ 
             #To take screenshot(Cannot use here as its run on headless)
 
         raw_data_folder = 'raw_data'
